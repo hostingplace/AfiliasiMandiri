@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Nama Member — Affiliate Dashboard</title>
+    <style>
+      :root {
+        --bg: #f3fbff;
+        --card: #e6f7ff;
+        --accent: #66c2ff;
+        --accent-2: #8fd6ff;
+        --muted: #6b8596;
+        --glass: rgba(255, 255, 255, 0.6);
+        --success: #23c48a;
+        --danger: #ff6b6b;
+        font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: linear-gradient(180deg, var(--bg), #eef9ff);
+        color: #083042;
+      }
+      .container {
+        max-width: 1100px;
+        margin: 28px auto;
+        padding: 20px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 18px;
+      }
+      .brand {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+      .logo {
+        width: 56px;
+        height: 56px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+      }
+      h1 {
+        margin: 0;
+        font-size: 20px;
+      }
+      .sub {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 16px;
+      }
+      .card {
+        background: var(--card);
+        padding: 14px;
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(6, 30, 45, 0.06);
+      }
+      .col-4 {
+        grid-column: span 4;
+      }
+      .col-8 {
+        grid-column: span 8;
+      }
+      .col-12 {
+        grid-column: span 12;
+      }
+      .overview {
+        display: flex;
+        gap: 12px;
+      }
+      .kpi {
+        flex: 1;
+        padding: 12px;
+        border-radius: 10px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.7),
+          transparent
+        );
+      }
+      .kpi h3 {
+        margin: 0;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .kpi p {
+        margin-top: 8px;
+        margin-bottom: 0;
+        font-weight: 700;
+        font-size: 20px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+      th,
+      td {
+        padding: 8px;
+        text-align: left;
+      }
+      thead th {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      tbody tr {
+        border-top: 1px solid rgba(8, 48, 66, 0.06);
+      }
+      .badge {
+        padding: 6px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        background: var(--glass);
+        display: inline-block;
+      }
+      .badge.pending {
+        background: linear-gradient(90deg, #fff3cd, #fff);
+        color: #a37c00;
+      }
+      .badge.approved {
+        background: linear-gradient(90deg, #e6fff3, #fff);
+        color: var(--success);
+      }
+      .badge.paid {
+        background: linear-gradient(90deg, #e6f0ff, #fff);
+        color: #1557ff;
+      }
+      .controls {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 8px;
+      }
+      input[type="text"],
+      select {
+        padding: 8px;
+        border-radius: 8px;
+        border: 1px solid rgba(6, 30, 45, 0.08);
+        min-width: 160px;
+      }
+      button {
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 0;
+        background: var(--accent);
+        color: white;
+        cursor: pointer;
+      }
+      button.alt {
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid rgba(6, 30, 45, 0.06);
+      }
+      .form-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      footer {
+        margin-top: 18px;
+        color: var(--muted);
+        font-size: 13px;
+        text-align: center;
+      }
+      @media (max-width: 900px) {
+        .col-4,
+        .col-8 {
+          grid-column: span 12;
+        }
+        .overview {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div class="brand">
+          <div class="logo" id="logoTxt">AF</div>
+          <div>
+            <h1 id="title">Nama Member</h1>
+            <div class="sub">
+              Light blue theme — data disimpan di localStorage. Sistem uang
+              berputar.
+            </div>
+          </div>
+        </div>
+        <div style="text-align: right">
+          <div id="balanceDisplay" style="font-weight: 700; font-size: 16px">
+            Saldo: Rp0
+          </div>
+          <div class="sub">Status: <span id="withdrawStatus">Ready</span></div>
+        </div>
+      </header>
+
+      <main class="grid">
+        <section class="card col-8">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 10px;
+            "
+          >
+            <strong>Ringkasan</strong>
+            <div class="controls">
+              <button onclick="seedDemo()" class="alt">Isi Data Demo</button>
+              <button onclick="exportCSV()">Export CSV</button>
+              <button onclick="resetData()" class="alt">Reset</button>
+            </div>
+          </div>
+
+          <div class="overview">
+            <div class="kpi">
+              <h3>Total Klik</h3>
+              <p id="totalClicks">0</p>
+            </div>
+            <div class="kpi">
+              <h3>Total Penjualan</h3>
+              <p id="totalSales">0</p>
+            </div>
+            <div class="kpi">
+              <h3>Total Komisi</h3>
+              <p id="totalCommission">Rp0</p>
+            </div>
+          </div>
+
+          <hr style="border: none; height: 12px" />
+
+          <div>
+            <strong>Riwayat Komisi</strong>
+            <table aria-label="komisi">
+              <thead>
+                <tr>
+                  <th>Waktu</th>
+                  <th>Order ID</th>
+                  <th>Biaya</th>
+                  <th>Jumlah</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="commissionTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <aside class="card col-4">
+          <strong>Nama Member Baru Bergabung</strong>
+          <div style="margin-top: 8px" class="form-row">
+            <input
+              type="text"
+              id="productName"
+              placeholder="Nama Member (contoh: Andi S.)"
+            />
+            <button onclick="createMemberFromThis()">Buat</button>
+          </div>
+          <div id="linkList" style="margin-top: 10px; font-size: 14px"></div>
+
+          <hr style="margin: 14px 0; border: none; height: 10px" />
+
+          <strong>Pengaturan Pembayaran</strong>
+          <div style="margin-top: 8px">
+            <div style="margin-bottom: 8px">Metode:</div>
+            <select id="payMethodSelect">
+              <option value="bank">Bank (Transfer)</option>
+              <option value="ovo">E-Wallet (OVO/Gopay)</option>
+            </select>
+            <div style="margin-top: 8px">
+              <input id="payAccount" placeholder="No. Rek / E-Wallet" />
+            </div>
+            <div style="margin-top: 8px" class="controls">
+              <button onclick="saveSettings()">Simpan</button>
+              <button class="alt" onclick="withdraw()">Withdraw</button>
+            </div>
+          </div>
+
+          <hr style="margin: 14px 0; border: none; height: 10px" />
+          <strong>Material Promosi</strong>
+          <div style="margin-top: 8px; font-size: 14px">
+            <ul id="materialsList" style="padding-left: 18px; margin: 0"></ul>
+          </div>
+        </aside>
+
+        <section class="card col-12">
+          <strong>Log Aktivitas</strong>
+          <div
+            id="logArea"
+            style="
+              margin-top: 8px;
+              font-size: 13px;
+              color: var(--muted);
+              max-height: 160px;
+              overflow: auto;
+              padding: 8px;
+              background: rgba(255, 255, 255, 0.6);
+              border-radius: 8px;
+            "
+          ></div>
+        </section>
+      </main>
+
+      <footer>
+        Demo dashboard affiliate — data disimpan di browser. Jangan gunakan
+        untuk data sensitif.
+      </footer>
+    </div>
+
+    <script>
+      // CONFIG
+      const STORAGE_KEY = "affiliate_v2";
+      const COMMISSION_AMOUNT = 150000; // sesuai permintaan
+      const TAX_AMOUNT = 5000;
+
+      // helpers
+      function qs(name) {
+        return new URLSearchParams(location.search).get(name);
+      }
+      function slugKey(name) {
+        // use raw name as key but normalize trim
+        return (name || "").trim();
+      }
+      function formatRupiah(n) {
+        return "Rp" + Number(n).toLocaleString("id-ID");
+      }
+      function genId(pref = "O") {
+        return pref + Math.random().toString(36).slice(2, 9).toUpperCase();
+      }
+
+      // default structure
+      const defaultDB = { members: {}, logs: [] };
+
+      function loadDB() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultDB));
+          return structuredClone(defaultDB);
+        }
+        try {
+          return JSON.parse(raw);
+        } catch (e) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultDB));
+          return structuredClone(defaultDB);
+        }
+      }
+      function saveDB(db) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+        render();
+      }
+
+      function addLog(txt) {
+        const db = loadDB();
+        db.logs.unshift({ t: new Date().toLocaleString(), txt });
+        if (db.logs.length > 300) db.logs.pop();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+      }
+
+      // ensure member exists
+      function ensureMember(name) {
+        const db = loadDB();
+        const key = slugKey(name);
+        if (!key) return null;
+        if (!db.members[key]) {
+          db.members[key] = { displayName: name, balance: 0, commissions: [] };
+          addLog(`Member dibuat: ${name}`);
+          saveDB(db);
+        }
+        return db.members[key];
+      }
+
+      // current viewer (from ?user=...)
+      const currentUserParam = qs("user") || "";
+      const currentKey = slugKey(currentUserParam) || "Owner";
+
+      // initialize
+      function init() {
+        // ensure owner exists if not
+        const db = loadDB();
+        if (!db.members["Owner"]) {
+          db.members["Owner"] = {
+            displayName: "Owner",
+            balance: 0,
+            commissions: [],
+          };
+          saveDB(db);
+        }
+        // ensure viewing member exists
+        ensureMember(currentKey);
+        render();
+      }
+
+      // create new member from current viewer (this is the referral action)
+      function createMemberFromThis() {
+        const name = document.getElementById("productName").value.trim();
+        if (!name) return alert("Isi nama member baru");
+        const db = loadDB();
+        const newKey = slugKey(name);
+        if (db.members[newKey]) {
+          if (!confirm("Member sudah ada. Tetap buat link ulang?")) {
+            return;
+          }
+        }
+        // create member
+        db.members[newKey] = db.members[newKey] || {
+          displayName: name,
+          balance: 0,
+          commissions: [],
+        };
+
+        // create link for new member
+        const url =
+          location.origin +
+          location.pathname +
+          "?user=" +
+          encodeURIComponent(name);
+
+        // give commission to current viewer
+        const commissionRecord = {
+          id: genId("C"),
+          time: new Date().toLocaleString(),
+          biaya: "Pajak Member",
+          jumlah: COMMISSION_AMOUNT,
+          status: "paid",
+        };
+        // push to current user's commissions and add balance immediately
+        db.members[currentKey].commissions.unshift(commissionRecord);
+        db.members[currentKey].balance += COMMISSION_AMOUNT;
+
+        // also add a small tax record (for clarity) as separate commission? We'll show biaya column as TAX amount when withdrawing
+        addLog(
+          `${db.members[currentKey].displayName} mendapat komisi ${formatRupiah(
+            COMMISSION_AMOUNT
+          )} dari invite ${name}`
+        );
+
+        saveDB(db);
+
+        // show link to user
+        document.getElementById(
+          "linkList"
+        ).innerHTML = `<div style="margin-bottom:8px;padding:8px;background:white;border-radius:8px;"><div style="font-size:13px"><strong>${name}</strong><div class="sub">Link untuk member baru</div></div><div style="margin-top:6px"><input readonly style="border:0;background:transparent;font-size:13px;width:100%" value="${url}" /></div></div>`;
+        document.getElementById("productName").value = "";
+        render();
+      }
+
+      function render() {
+        const db = loadDB();
+        const me = db.members[currentKey];
+        // header
+        document.getElementById("title").innerText =
+          me.displayName || "Nama Member";
+        document.getElementById("logoTxt").innerText = (me.displayName || "AF")
+          .slice(0, 2)
+          .toUpperCase();
+        document.getElementById("balanceDisplay").innerText =
+          "Saldo: " + formatRupiah(me.balance || 0);
+        document.getElementById("materialsList").innerHTML =
+          (db.materials || []).map((m) => `<li>${m.title}</li>`).join("") ||
+          "<li>Tidak ada</li>";
+
+        // KPIs
+        const totalClicks = Object.values(db.members).reduce(
+          (s, m) => s + (m.clicks || 0),
+          0
+        );
+        const totalSales = me.commissions.filter(
+          (c) => c.status !== "pending"
+        ).length;
+        const totalComm = me.commissions.reduce(
+          (s, c) => s + (c.jumlah || 0),
+          0
+        );
+        document.getElementById("totalClicks").innerText = totalClicks;
+        document.getElementById("totalSales").innerText = totalSales;
+        document.getElementById("totalCommission").innerText =
+          formatRupiah(totalComm);
+
+        // commissions table
+        const tbody = me.commissions
+          .map((c) => {
+            const badge = `<span class="badge ${c.status}">${c.status}</span>`;
+            return `<tr><td>${c.time}</td><td>${c.id}</td><td>${
+              c.biaya
+            }</td><td>${formatRupiah(c.jumlah)}</td><td>${badge}</td><td>${
+              c.status === "pending"
+                ? `<button onclick="approveCommission('${c.id}')">Approve</button>`
+                : c.status === "approved"
+                ? `<button onclick="markPaid('${c.id}')">Mark Paid</button>`
+                : ""
+            }</td></tr>`;
+          })
+          .join("");
+        document.getElementById("commissionTable").innerHTML =
+          tbody || '<tr><td colspan="6" class="sub">Belum ada komisi</td></tr>';
+
+        // logs
+        document.getElementById("logArea").innerHTML = db.logs
+          .map((l) => `<div><strong>${l.t}</strong> — ${l.txt}</div>`)
+          .join("");
+
+        // withdraw status
+        document.getElementById("withdrawStatus").innerText =
+          me.balance > 0 ? "Ready" : "No Balance";
+      }
+
+      // approve / pay functions (kept for compatibility)
+      function approveCommission(id) {
+        const db = loadDB();
+        const c = db.members[currentKey].commissions.find((x) => x.id === id);
+        if (!c) return;
+        c.status = "approved";
+        saveDB(db);
+        addLog(`Komisi ${id} disetujui`);
+      }
+      function markPaid(id) {
+        const db = loadDB();
+        const c = db.members[currentKey].commissions.find((x) => x.id === id);
+        if (!c) return;
+        if (c.status === "paid") return;
+        c.status = "paid";
+        db.members[currentKey].balance += c.jumlah;
+        saveDB(db);
+        addLog(`Komisi ${id} dicairkan ke saldo`);
+      }
+
+      function withdraw() {
+        const db = loadDB();
+        const me = db.members[currentKey];
+        if (me.balance <= 0) return alert("Saldo kosong");
+        const acc = document.getElementById("payAccount").value.trim();
+        if (!acc) return alert("Isi no. rekening / e-wallet dahulu");
+        const amt = me.balance;
+        // apply tax
+        const tax = TAX_AMOUNT;
+        const net = amt - tax;
+        if (net < 0) return alert("Saldo tidak cukup untuk pajak");
+        // create withdrawal log and set balance 0
+        me.balance = 0;
+        db.logs.unshift({
+          t: new Date().toLocaleString(),
+          txt: `Withdraw ${formatRupiah(amt)} (net ${formatRupiah(
+            net
+          )}) ke ${acc} — pajak ${formatRupiah(tax)}`,
+        });
+        saveDB(db);
+        alert(
+          "Permintaan withdraw selesai (simulasi). Pajak otomatis sudah dipotong."
+        );
+      }
+
+      function saveSettings() {
+        const db = loadDB();
+        db.settings = db.settings || {};
+        db.settings.method = document.getElementById("payMethodSelect").value;
+        db.settings.account = document
+          .getElementById("payAccount")
+          .value.trim();
+        addLog("Pengaturan pembayaran disimpan");
+        saveDB(db);
+      }
+
+      // demo seeder
+      function seedDemo() {
+        const db = loadDB();
+        db.members = db.members || {};
+        db.members["Owner"] = {
+          displayName: "Owner",
+          balance: 30000,
+          commissions: [
+            {
+              id: genId("C"),
+              time: new Date().toLocaleString(),
+              biaya: "Pajak Member",
+              jumlah: 30000,
+              status: "paid",
+            },
+          ],
+        };
+        db.members["Budi"] = {
+          displayName: "Budi",
+          balance: 150000,
+          commissions: [
+            {
+              id: genId("C"),
+              time: new Date().toLocaleString(),
+              biaya: "Pajak Member",
+              jumlah: 150000,
+              status: "paid",
+            },
+          ],
+        };
+        db.members["Santi"] = {
+          displayName: "Santi",
+          balance: 0,
+          commissions: [],
+        };
+        db.materials = [{ title: "Banner 1" }, { title: "Kode Diskon 10%" }];
+        db.logs.unshift({
+          t: new Date().toLocaleString(),
+          txt: "Demo data dimuat",
+        });
+        saveDB(db);
+      }
+
+      function resetData() {
+        if (!confirm("Reset semua data di localStorage?")) return;
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultDB));
+        addLog("Data direset");
+        render();
+      }
+
+      function exportCSV() {
+        const db = loadDB();
+        const me = db.members[currentKey];
+        const rows = [["time", "id", "biaya", "jumlah", "status"]].concat(
+          me.commissions.map((c) => [c.time, c.id, c.biaya, c.jumlah, c.status])
+        );
+        const csv = rows
+          .map((r) =>
+            r.map((x) => `"${String(x || "").replace(/"/g, '""')}"`).join(",")
+          )
+          .join();
+        const blob = new Blob([csv], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "commissions_" + encodeURIComponent(currentKey) + ".csv";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      // run
+      init();
+      // expose for debug
+      window.seedDemo = seedDemo;
+      window.addLog = addLog;
+      window.createMemberFromThis = createMemberFromThis;
+      window.exportCSV = exportCSV;
+      window.resetData = resetData;
+    </script>
+
+    <!-- Withdraw Feature Added -->
+    <script>
+      // Withdraw Manual Implementation
+      // Extend existing data structure
+      function requestWithdraw(user, amount, method, account) {
+        const db = JSON.parse(localStorage.getItem("affiliate_v2")) || {};
+        if (!db[user]) return;
+        if (amount > db[user].saldo) {
+          alert("Saldo tidak cukup");
+          return;
+        }
+
+        const wd = {
+          id: "WD" + Date.now(),
+          user,
+          amount,
+          fee: 5000,
+          final: amount - 5000,
+          method,
+          account,
+          status: "pending",
+          time: new Date().toLocaleString(),
+        };
+
+        db.withdraws = db.withdraws || [];
+        db.withdraws.push(wd);
+
+        localStorage.setItem("affiliate_v2", JSON.stringify(db));
+        alert("Withdraw berhasil diajukan! Menunggu approve admin.");
+      }
+    </script>
+  </body>
+</html>
