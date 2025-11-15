@@ -53,8 +53,8 @@
     box-shadow:0 10px 30px rgba(0,0,0,0.2)}
 </style>
 </head>
-<body>
 
+<body>
 <div class="container">
 
 <header>
@@ -72,8 +72,8 @@
   </div>
 </header>
 
-
 <main class="grid">
+
   <!-- LEFT -->
   <section class="card col-8">
 
@@ -96,7 +96,9 @@
 
     <strong>Riwayat Komisi</strong>
     <table>
-      <thead><tr><th>Waktu</th><th>Order</th><th>Biaya</th><th>Jumlah</th><th>Status</th><th>Aksi</th></tr></thead>
+      <thead>
+        <tr><th>Waktu</th><th>Order</th><th>Biaya</th><th>Jumlah</th><th>Status</th><th>Aksi</th></tr>
+      </thead>
       <tbody id="commissionTable"></tbody>
     </table>
 
@@ -106,7 +108,6 @@
     </div>
 
   </section>
-
 
   <!-- RIGHT -->
   <aside class="card col-4">
@@ -126,9 +127,11 @@
         <option value="bank">Bank (Transfer)</option>
         <option value="dana">DANA</option>
       </select>
+
       <div style="margin-top:8px">
         <input id="payAccount" placeholder="No. Rek / DANA">
       </div>
+
       <div class="controls">
         <button onclick="savePayment()">Simpan</button>
         <button onclick="openWithdraw()" class="alt">Withdraw</button>
@@ -142,12 +145,13 @@
 
   </aside>
 
-
-  <!-- LOG -->
+  <!-- LOG AREA -->
   <section class="card col-12">
     <strong>Log Aktivitas</strong>
-    <div id="logArea" style="margin-top:8px;height:160px;overflow:auto;font-size:13px;color:var(--muted);
-    background:rgba(255,255,255,0.6);padding:8px;border-radius:8px"></div>
+    <div id="logArea" 
+      style="margin-top:8px;height:160px;overflow:auto;font-size:13px;color:var(--muted);
+             background:rgba(255,255,255,0.6);padding:8px;border-radius:8px">
+    </div>
   </section>
 
 </main>
@@ -156,11 +160,11 @@
   Demo affiliate — data lokal. Jangan gunakan untuk data sensitif.
 </footer>
 
-
 <!-- WITHDRAW MODAL -->
 <div id="withdrawModal">
   <div id="withdrawBox">
     <h3>Ajukan Withdraw</h3>
+
     <label>Jumlah (angka)</label>
     <input type="number" id="wdAmount" style="width:100%;margin-bottom:8px">
 
@@ -180,14 +184,12 @@
   </div>
 </div>
 
-
 <script>
 /* CONFIG */
 const STORAGE_KEY = "affiliate_v2";
 const COMMISSION = 150000;
 const TAX = 5000;
-const OWNER_NAME = "distributorutama"; // lowercase for case-insensitive matching
-
+const OWNER_NAME = "distributorutama"; // case insensitive reference
 /* UTIL */
 const qs = n => new URLSearchParams(location.search).get(n);
 const rupiah = n => "Rp"+Number(n||0).toLocaleString("id-ID");
@@ -196,11 +198,13 @@ const gen = p => p+Math.random().toString(36).substring(2,9).toUpperCase();
 /* DB */
 function loadDB(){
   try{
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {members:{},logs:[],withdraws:[]};
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || 
+    {members:{},logs:[],withdraws:[]};
   }catch(e){
     return {members:{},logs:[],withdraws:[]};
   }
 }
+
 function saveDB(db){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
   render();
@@ -209,28 +213,36 @@ function saveDB(db){
 /* CURRENT USER */
 let currentUserRaw = qs("user") || "";
 let currentUser = currentUserRaw.trim().toLowerCase();
-if(!currentUser) currentUser = "anonymous";
 
-/* OWNER CHECK (CASE INSENSITIVE) */
+/* AUTO-FALLBACK → jika tidak ada ?user=, masuk sebagai Owner */
+if(!currentUser) currentUser = OWNER_NAME.toLowerCase();
+
+/* OWNER CHECK */
 function isOwner(){
   return currentUser.toLowerCase() === OWNER_NAME.toLowerCase();
 }
 
-/* INITIALIZE MEMBER IF NOT EXISTS
-   IMPORTANT: this function no longer calls saveDB() to avoid recursion
-*/
+/* INITIALIZE MEMBER (tanpa saveDB untuk hindari recursion) */
 function ensureMember(name){
   const key = name.trim().toLowerCase();
   const db = loadDB();
+
   if(!db.members[key]){
-    db.members[key] = {name:name,balance:0,commissions:[]};
-    // persist directly without calling saveDB() (to avoid calling render inside)
+    db.members[key] = {
+      name: name,
+      balance: 0,
+      commissions: [],
+      method: "",
+      account: ""
+    };
+
+    // Simpan manual tanpa render
     localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
   }
   return db.members[key];
 }
 
-/* CREATE MEMBER (DOWNLINE) */
+/* CREATE MEMBER → dapat komisi */
 function createMember(){
   const name = document.getElementById("newMemberName").value.trim();
   if(!name) return alert("Isi nama member baru.");
@@ -245,14 +257,18 @@ function createMember(){
   const me = ensureMember(currentUser);
 
   me.commissions.unshift({
-    id:gen("C"),time:new Date().toLocaleString(),biaya:"Pajak Member",
-    jumlah:COMMISSION,status:"paid",from:name
+    id: gen("C"),
+    time: new Date().toLocaleString(),
+    biaya: "Pajak Member Baru",
+    jumlah: COMMISSION,
+    status: "paid",
+    from: name
   });
 
   me.balance += COMMISSION;
   db.logs.unshift({t:new Date().toLocaleString(),txt:`${me.name} dapat komisi dari ${name}`});
 
-  const url = location.origin+location.pathname+"?user="+encodeURIComponent(name);
+  const url = location.origin + location.pathname + "?user=" + encodeURIComponent(name);
 
   document.getElementById("linkList").innerHTML =
   `<div style="background:white;padding:10px;border-radius:8px;margin-top:8px">
@@ -262,24 +278,27 @@ function createMember(){
   </div>`;
 
   saveDB(db);
-  document.getElementById("newMemberName").value="";
+  document.getElementById("newMemberName").value = "";
 }
 
 /* WITHDRAW */
 function openWithdraw(){
-  document.getElementById("withdrawModal").style.display="flex";
+  document.getElementById("withdrawModal").style.display = "flex";
   document.getElementById("wdAccount").value =
     document.getElementById("payAccount").value || "";
 }
-function closeWithdraw(){ document.getElementById("withdrawModal").style.display="none"; }
+
+function closeWithdraw(){
+  document.getElementById("withdrawModal").style.display = "none";
+}
 
 function submitWithdraw(){
   const amt = Number(document.getElementById("wdAmount").value);
   const method = document.getElementById("wdMethod").value;
   const acc = document.getElementById("wdAccount").value.trim();
 
-  if(amt<=0) return alert("Nominal salah");
-  if(!acc) return alert("Isi nomor rekening");
+  if(amt <= 0) return alert("Nominal tidak valid");
+  if(!acc) return alert("Isi nomor rekening/DANA");
 
   const db = loadDB();
   const me = ensureMember(currentUser);
@@ -287,17 +306,23 @@ function submitWithdraw(){
   if(me.balance < amt) return alert("Saldo kurang");
 
   db.withdraws.unshift({
-    id:gen("WD"),user:currentUser,name:me.name,
-    amount:amt,fee:TAX,final:amt-TAX,
-    method,account:acc,status:"pending",
-    time:new Date().toLocaleString()
+    id: gen("WD"),
+    user: currentUser,
+    name: me.name,
+    amount: amt,
+    fee: TAX,
+    final: amt - TAX,
+    method,
+    account: acc,
+    status: "pending",
+    time: new Date().toLocaleString()
   });
 
   db.logs.unshift({t:new Date().toLocaleString(),txt:`${me.name} ajukan withdraw`});
-  saveDB(db);
 
+  saveDB(db);
   closeWithdraw();
-  alert("Withdraw diajukan. Owner akan memproses manual.");
+  alert("Withdraw diajukan. Owner akan memproses secara manual.");
 }
 
 /* OWNER APPROVE */
@@ -306,16 +331,15 @@ function approve(id){
   const wd = db.withdraws.find(x=>x.id===id);
   if(!wd) return;
 
-  const m = ensureMember(wd.user);
+  const member = ensureMember(wd.user);
 
-  m.balance -= wd.amount;
+  member.balance -= wd.amount;
   wd.status = "approved";
   wd.done = new Date().toLocaleString();
 
   db.logs.unshift({t:new Date().toLocaleString(),txt:`Owner approve withdraw ${wd.name}`});
   saveDB(db);
-
-  alert("Withdraw approved. Transfer manual ke member.");
+  alert("Withdraw disetujui (transfer manual).");
 }
 
 /* OWNER CANCEL */
@@ -324,12 +348,12 @@ function cancelWD(id){
   const wd = db.withdraws.find(x=>x.id===id);
   if(!wd) return;
 
-  wd.status="cancelled";
-  db.logs.unshift({t:new Date().toLocaleString(),txt:`Owner cancel withdraw ${wd.name}`});
+  wd.status = "cancelled";
+  db.logs.unshift({t:new Date().toLocaleString(),txt:`Owner membatalkan withdraw ${wd.name}`});
   saveDB(db);
 }
 
-/* PP SETTINGS */
+/* PAYMENT SETTINGS */
 function savePayment(){
   const db = loadDB();
   const me = ensureMember(currentUser);
@@ -337,13 +361,13 @@ function savePayment(){
   me.method = document.getElementById("payMethod").value;
   me.account = document.getElementById("payAccount").value.trim();
 
-  db.logs.unshift({t:new Date().toLocaleString(),txt:`${me.name} simpan pengaturan pembayaran`});
+  db.logs.unshift({t:new Date().toLocaleString(),txt:`${me.name} menyimpan data pembayaran`});
   saveDB(db);
 
-  alert("Disimpan.");
+  alert("Pengaturan tersimpan.");
 }
 
-/* EXPORT */
+/* EXPORT CSV */
 function exportCSV(){
   const db = loadDB();
   const me = ensureMember(currentUser);
@@ -358,37 +382,45 @@ function exportCSV(){
   const url = URL.createObjectURL(blob);
 
   const a=document.createElement("a");
-  a.href=url;a.download="commissions.csv";a.click();
+  a.href=url;
+  a.download="commission.csv";
+  a.click();
+
   URL.revokeObjectURL(url);
 }
 
-/* DEMO */
+/* DEMO DATA */
 function seedDemo(){
   const db = loadDB();
-  db.members["distributorutama"]={name:"DistributorUtama",balance:450000,commissions:[]};
+  db.members[OWNER_NAME] = {
+    name: "DistributorUtama",
+    balance: 450000,
+    commissions: []
+  };
   db.logs.unshift({t:new Date().toLocaleString(),txt:"Demo data ditambahkan"});
   saveDB(db);
 }
 
 /* RESET */
 function resetData(){
-  if(confirm("Reset data?")){
+  if(confirm("Reset semua data?")){
     localStorage.removeItem(STORAGE_KEY);
     location.reload();
   }
 }
 
-/* RENDER */
+/* RENDER UI */
 function render(){
   const db = loadDB();
   const me = ensureMember(currentUser);
 
+  // HEADER
   document.getElementById("title").innerText = me.name;
   document.getElementById("logoTxt").innerText = me.name.substring(0,2).toUpperCase();
-  document.getElementById("balanceDisplay").innerText = "Saldo: "+rupiah(me.balance);
+  document.getElementById("balanceDisplay").innerText = "Saldo: " + rupiah(me.balance);
   document.getElementById("withdrawStatus").innerText = me.balance>0 ? "Ready" : "No Balance";
 
-  /* KPI */
+  // KPI
   const totalSales = me.commissions.length;
   const totalComm = me.commissions.reduce((s,c)=>s+c.jumlah,0);
 
@@ -396,46 +428,51 @@ function render(){
   document.getElementById("totalSales").innerText = totalSales;
   document.getElementById("totalCommission").innerText = rupiah(totalComm);
 
-  /* TABLE COMMISSIONS */
+  // TABLE
   const tb = document.getElementById("commissionTable");
-  tb.innerHTML = me.commissions.map(c=>{
-    return `<tr>
-      <td>${c.time}</td>
-      <td>${c.id}</td>
-      <td>${c.biaya}</td>
-      <td>${rupiah(c.jumlah)}</td>
-      <td><span class="badge ${c.status}">${c.status}</span></td>
-      <td></td>
-    </tr>`;
-  }).join("") || `<tr><td colspan="6" class="muted">Belum ada komisi</td></tr>`;
 
-  /* LOGS */
+  tb.innerHTML = me.commissions.length
+    ? me.commissions.map(c=>`
+      <tr>
+        <td>${c.time}</td>
+        <td>${c.id}</td>
+        <td>${c.biaya}</td>
+        <td>${rupiah(c.jumlah)}</td>
+        <td><span class="badge ${c.status}">${c.status}</span></td>
+        <td></td>
+      </tr>
+    `).join("")
+    : `<tr><td colspan="6" class="muted">Belum ada komisi</td></tr>`;
+
+  // LOGS
   document.getElementById("logArea").innerHTML =
     db.logs.map(l=>`<div>${l.t} — ${l.txt}</div>`).join("");
 
-  /* OWNER PANEL */
+  // OWNER PANEL
   const ownerArea = document.getElementById("ownerArea");
+
   if(isOwner()){
     ownerArea.style.display="block";
-
     const panel = document.getElementById("ownerPanel");
-    panel.innerHTML = db.withdraws.map(w=>{
-      return `<div style="padding:8px;border-bottom:1px solid #eee">
-        <strong>${w.name}</strong><br>
-        Amount: ${rupiah(w.amount)} — Final: ${rupiah(w.final)} <br>
-        Metode: ${w.method} — Rek: ${w.account} <br>
-        Status: ${w.status}<br>
-        ${w.status==="pending"?
-          `<button onclick="approve('${w.id}')">Approve</button>
-           <button class="alt" onclick="cancelWD('${w.id}')">Cancel</button>` 
-           :""}
-      </div>`;
-    }).join("") || "<div class='muted'>Belum ada withdraw</div>";
+
+    panel.innerHTML = db.withdraws.length
+      ? db.withdraws.map(w=>`
+        <div style="padding:8px;border-bottom:1px solid #eee">
+          <strong>${w.name}</strong><br>
+          Amount: ${rupiah(w.amount)} — Final: ${rupiah(w.final)}<br>
+          Metode: ${w.method} — Rek: ${w.account}<br>
+          Status: ${w.status}<br>
+          ${w.status==="pending" ? `
+             <button onclick="approve('${w.id}')">Approve</button>
+             <button class="alt" onclick="cancelWD('${w.id}')">Cancel</button>
+          ` : ""}
+        </div>
+      `).join("")
+      : "<div class='muted'>Belum ada withdraw</div>";
 
   } else {
     ownerArea.style.display="none";
   }
-
 }
 
 render();
