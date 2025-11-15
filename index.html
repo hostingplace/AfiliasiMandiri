@@ -51,6 +51,8 @@
     align-items:center;justify-content:center;}
   #withdrawBox{background:white;padding:18px;border-radius:12px;max-width:420px;width:90%;
     box-shadow:0 10px 30px rgba(0,0,0,0.2)}
+  /* small responsive */
+  @media (max-width:900px){ .col-8,.col-4{grid-column:span:12} .overview{flex-direction:column} }
 </style>
 </head>
 
@@ -76,7 +78,6 @@
 
   <!-- LEFT -->
   <section class="card col-8">
-
     <div style="display:flex;justify-content:space-between;margin-bottom:10px">
       <strong>Ringkasan</strong>
       <div class="controls">
@@ -189,108 +190,139 @@
 const STORAGE_KEY = "affiliate_v2";
 const COMMISSION = 150000;
 const TAX = 5000;
-const OWNER_NAME = "distributorutama"; // case insensitive reference
-/* UTIL */
+const OWNER_NAME = "distributorutama"; // canonical owner key (lowercase)
+
+/* HELPERS */
 const qs = n => new URLSearchParams(location.search).get(n);
 const rupiah = n => "Rp"+Number(n||0).toLocaleString("id-ID");
 const gen = p => p+Math.random().toString(36).substring(2,9).toUpperCase();
 
-/* DB */
-function loadDB(){
-  try{
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || 
-    {members:{},logs:[],withdraws:[]};
-  }catch(e){
-    return {members:{},logs:[],withdraws:[]};
-  }
+// Normalize display name: capitalize each word for nicer UI
+function toDisplayName(raw){
+  if(!raw) return raw;
+  return raw.split(/\s+/).map(w => w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
 }
 
+/* DB helpers */
+function loadDB(){
+  try{
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { members:{}, logs:[], withdraws:[] };
+  } catch(e){
+    return { members:{}, logs:[], withdraws:[] };
+  }
+}
 function saveDB(db){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
   render();
 }
 
-/* CURRENT USER */
+/* CURRENT USER (normalized key) */
 let currentUserRaw = qs("user") || "";
 let currentUser = currentUserRaw.trim().toLowerCase();
 
-/* AUTO-FALLBACK → jika tidak ada ?user=, masuk sebagai Owner */
+// Auto fallback: jika tidak ada ?user= maka treat as Owner
 if(!currentUser) currentUser = OWNER_NAME.toLowerCase();
 
-/* OWNER CHECK */
+/* Owner check */
 function isOwner(){
   return currentUser.toLowerCase() === OWNER_NAME.toLowerCase();
 }
 
-/* INITIALIZE MEMBER (tanpa saveDB untuk hindari recursion) */
-function ensureMember(name){
-  const key = name.trim().toLowerCase();
+/* Ensure member exists (key always lowercase) */
+/* This function will create a member record with a standardized display name if missing.
+   It will not call render() to avoid recursion; caller should call saveDB() or render() as needed.
+*/
+function ensureMemberRecordByKey(key, optionalDisplayName){
   const db = loadDB();
-
-  if(!db.members[key]){
-    db.members[key] = {
-      name: name,
+  const k = (key||'').trim().toLowerCase();
+  if(!k) return null;
+  if(!db.members[k]){
+    db.members[k] = {
+      // store display-friendly name separately; preserve proper capitalization
+      name: toDisplayName(optionalDisplayName || key),
       balance: 0,
       commissions: [],
       method: "",
       account: ""
     };
-
-    // Simpan manual tanpa render
+    // persist immediately
     localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
   }
-  return db.members[key];
+  return db.members[k];
 }
 
-/* CREATE MEMBER → dapat komisi */
+/* Create member (downline) and give commission to inviter (currentUser) */
 function createMember(){
-  const name = document.getElementById("newMemberName").value.trim();
-  if(!name) return alert("Isi nama member baru.");
+  const rawName = document.getElementById("newMemberName").value.trim();
+  if(!rawName) return alert("Isi nama member baru.");
 
-  const key = name.toLowerCase();
+  const newKey = rawName.toLowerCase();
+  const displayNew = toDisplayName(rawName);
   const db = loadDB();
 
-  if(!db.members[key]){
-    db.members[key] = {name:name,balance:0,commissions:[]};
+  // ensure new member exists
+  if(!db.members[newKey]){
+    db.members[newKey] = {
+      name: displayNew,
+      balance: 0,
+      commissions: [],
+      method: "",
+      account: ""
+    };
   }
 
-  const me = ensureMember(currentUser);
+  // ensure inviter exists (currentUser)
+  const inviterKey = (currentUser||'').trim().toLowerCase();
+  if(!inviterKey) return alert("User tidak dikenali.");
+  if(!db.members[inviterKey]){
+    // create inviter record if missing (use key as display name if not provided)
+    db.members[inviterKey] = {
+      name: toDisplayName(currentUserRaw || inviterKey),
+      balance: 0,
+      commissions: [],
+      method: "",
+      account: ""
+    };
+  }
 
-  me.commissions.unshift({
+  // Add commission to inviter's account
+  const commissionRecord = {
     id: gen("C"),
     time: new Date().toLocaleString(),
     biaya: "Pajak Member Baru",
     jumlah: COMMISSION,
     status: "paid",
-    from: name
-  });
+    from: displayNew
+  };
 
-  me.balance += COMMISSION;
-  db.logs.unshift({t:new Date().toLocaleString(),txt:`${me.name} dapat komisi dari ${name}`});
+  db.members[inviterKey].commissions.unshift(commissionRecord);
+  db.members[inviterKey].balance = (db.members[inviterKey].balance || 0) + COMMISSION;
 
-  const url = location.origin + location.pathname + "?user=" + encodeURIComponent(name);
+  db.logs.unshift({ t: new Date().toLocaleString(), txt: `${db.members[inviterKey].name} dapat komisi dari ${displayNew}` });
 
-  document.getElementById("linkList").innerHTML =
-  `<div style="background:white;padding:10px;border-radius:8px;margin-top:8px">
-    <strong>${name}</strong><br>
-    <small>Link member baru:</small>
-    <input style="width:100%;border:0;background:transparent" value="${url}" readonly>
-  </div>`;
+  // create public link for the new member — use lowercase key for consistency
+  const url = location.origin + location.pathname + "?user=" + encodeURIComponent(newKey);
 
+  // persist and render
   saveDB(db);
+
+  // show link
+  document.getElementById("linkList").innerHTML =
+    `<div style="background:white;padding:10px;border-radius:8px;margin-top:8px">
+      <strong>${displayNew}</strong><br>
+      <small>Link member baru:</small>
+      <input style="width:100%;border:0;background:transparent" value="${url}" readonly>
+    </div>`;
+
   document.getElementById("newMemberName").value = "";
 }
 
-/* WITHDRAW */
+/* Withdraw flows */
 function openWithdraw(){
   document.getElementById("withdrawModal").style.display = "flex";
-  document.getElementById("wdAccount").value =
-    document.getElementById("payAccount").value || "";
+  document.getElementById("wdAccount").value = document.getElementById("payAccount").value || "";
 }
-
-function closeWithdraw(){
-  document.getElementById("withdrawModal").style.display = "none";
-}
+function closeWithdraw(){ document.getElementById("withdrawModal").style.display = "none"; }
 
 function submitWithdraw(){
   const amt = Number(document.getElementById("wdAmount").value);
@@ -301,138 +333,143 @@ function submitWithdraw(){
   if(!acc) return alert("Isi nomor rekening/DANA");
 
   const db = loadDB();
-  const me = ensureMember(currentUser);
+  const meKey = (currentUser||'').trim().toLowerCase();
+  ensureMemberRecordByKey(meKey, currentUserRaw || meKey);
+  const me = db.members[meKey];
 
   if(me.balance < amt) return alert("Saldo kurang");
 
   db.withdraws.unshift({
     id: gen("WD"),
-    user: currentUser,
+    user: meKey,
     name: me.name,
     amount: amt,
     fee: TAX,
-    final: amt - TAX,
+    final: Math.max(0, amt - TAX),
     method,
     account: acc,
     status: "pending",
     time: new Date().toLocaleString()
   });
 
-  db.logs.unshift({t:new Date().toLocaleString(),txt:`${me.name} ajukan withdraw`});
+  db.logs.unshift({ t: new Date().toLocaleString(), txt: `${me.name} ajukan withdraw` });
 
   saveDB(db);
   closeWithdraw();
   alert("Withdraw diajukan. Owner akan memproses secara manual.");
 }
 
-/* OWNER APPROVE */
-function approve(id){
+/* Owner actions */
+function ownerApproveWithdraw(id){
   const db = loadDB();
-  const wd = db.withdraws.find(x=>x.id===id);
-  if(!wd) return;
+  const wd = db.withdraws.find(x => x.id === id);
+  if(!wd) return alert("Request tidak ditemukan");
+  if(wd.status !== 'pending') return alert("Request bukan pending");
 
-  const member = ensureMember(wd.user);
+  const memberKey = (wd.user||'').trim().toLowerCase();
+  ensureMemberRecordByKey(memberKey, wd.name);
+  const member = db.members[memberKey];
 
-  member.balance -= wd.amount;
+  // decrease balance by full amount (owner does manual transfer)
+  member.balance = (member.balance || 0) - (wd.amount || 0);
+  if(member.balance < 0) member.balance = 0;
+
   wd.status = "approved";
   wd.done = new Date().toLocaleString();
 
-  db.logs.unshift({t:new Date().toLocaleString(),txt:`Owner approve withdraw ${wd.name}`});
+  db.logs.unshift({ t: new Date().toLocaleString(), txt: `Owner approve withdraw ${wd.id} (${wd.name})` });
   saveDB(db);
-  alert("Withdraw disetujui (transfer manual).");
+
+  alert("Withdraw approved. Ingat untuk transfer manual ke nomor tujuan.");
 }
 
-/* OWNER CANCEL */
-function cancelWD(id){
+function ownerCancelWithdraw(id){
+  if(!confirm("Batalkan request ini?")) return;
   const db = loadDB();
-  const wd = db.withdraws.find(x=>x.id===id);
-  if(!wd) return;
-
+  const wd = db.withdraws.find(x => x.id === id);
+  if(!wd) return alert("Request tidak ditemukan");
   wd.status = "cancelled";
-  db.logs.unshift({t:new Date().toLocaleString(),txt:`Owner membatalkan withdraw ${wd.name}`});
+  db.logs.unshift({ t: new Date().toLocaleString(), txt: `Owner membatalkan withdraw ${wd.id} (${wd.name})` });
   saveDB(db);
 }
 
-/* PAYMENT SETTINGS */
+/* Payment settings */
 function savePayment(){
   const db = loadDB();
-  const me = ensureMember(currentUser);
-
-  me.method = document.getElementById("payMethod").value;
-  me.account = document.getElementById("payAccount").value.trim();
-
-  db.logs.unshift({t:new Date().toLocaleString(),txt:`${me.name} menyimpan data pembayaran`});
+  const meKey = (currentUser||'').trim().toLowerCase();
+  ensureMemberRecordByKey(meKey, currentUserRaw || meKey);
+  db.members[meKey].method = document.getElementById("payMethod").value;
+  db.members[meKey].account = document.getElementById("payAccount").value.trim();
+  db.logs.unshift({ t: new Date().toLocaleString(), txt: `${db.members[meKey].name} menyimpan data pembayaran` });
   saveDB(db);
-
   alert("Pengaturan tersimpan.");
 }
 
-/* EXPORT CSV */
+/* Export CSV (commissions for current user) */
 function exportCSV(){
   const db = loadDB();
-  const me = ensureMember(currentUser);
+  const meKey = (currentUser||'').trim().toLowerCase();
+  ensureMemberRecordByKey(meKey, currentUserRaw || meKey);
+  const me = db.members[meKey];
 
   const rows = [
     ["time","order","biaya","jumlah","status"],
-    ...me.commissions.map(c=>[c.time,c.id,c.biaya,c.jumlah,c.status])
+    ...((me.commissions || []).map(c => [c.time, c.id, c.biaya, c.jumlah, c.status]))
   ];
 
-  const csv = rows.map(r=>r.join(",")).join("\n");
-  const blob = new Blob([csv],{type:"text/csv"});
+  const csv = rows.map(r => r.map(v => `"${String(v||'').replace(/"/g,'""')}"`).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
-
-  const a=document.createElement("a");
-  a.href=url;
-  a.download="commission.csv";
+  const a = document.createElement("a");
+  a.href = url; a.download = `commissions_${me.name.replace(/\s+/g,'_')}.csv`;
   a.click();
-
   URL.revokeObjectURL(url);
 }
 
-/* DEMO DATA */
+/* Demo data seed */
 function seedDemo(){
   const db = loadDB();
-  db.members[OWNER_NAME] = {
-    name: "DistributorUtama",
-    balance: 450000,
-    commissions: []
-  };
-  db.logs.unshift({t:new Date().toLocaleString(),txt:"Demo data ditambahkan"});
+  db.members = db.members || {};
+  db.members[OWNER_NAME] = db.members[OWNER_NAME] || { name: "DistributorUtama", balance: 450000, commissions: [], method:"", account:"" };
+  db.logs = db.logs || [];
+  db.logs.unshift({ t: new Date().toLocaleString(), txt: "Demo data ditambahkan" });
   saveDB(db);
 }
 
-/* RESET */
+/* Reset */
 function resetData(){
-  if(confirm("Reset semua data?")){
-    localStorage.removeItem(STORAGE_KEY);
-    location.reload();
-  }
+  if(!confirm("Reset semua data lokal?")) return;
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
 }
 
 /* RENDER UI */
 function render(){
   const db = loadDB();
-  const me = ensureMember(currentUser);
+  const meKey = (currentUser||'').trim().toLowerCase();
+  // ensure record exists
+  ensureMemberRecordByKey(meKey, currentUserRaw || meKey);
+  const me = db.members[meKey];
 
-  // HEADER
-  document.getElementById("title").innerText = me.name;
-  document.getElementById("logoTxt").innerText = me.name.substring(0,2).toUpperCase();
-  document.getElementById("balanceDisplay").innerText = "Saldo: " + rupiah(me.balance);
-  document.getElementById("withdrawStatus").innerText = me.balance>0 ? "Ready" : "No Balance";
+  // header
+  document.getElementById("title").innerText = me.name || toDisplayName(currentUserRaw || meKey);
+  document.getElementById("logoTxt").innerText = (me.name||'AF').substring(0,2).toUpperCase();
+  document.getElementById("balanceDisplay").innerText = "Saldo: " + rupiah(me.balance || 0);
+  document.getElementById("withdrawStatus").innerText = (me.balance||0) > 0 ? "Ready" : "No Balance";
 
-  // KPI
-  const totalSales = me.commissions.length;
-  const totalComm = me.commissions.reduce((s,c)=>s+c.jumlah,0);
-
+  // KPIs
+  const totalSales = (me.commissions || []).length;
+  const totalComm = (me.commissions || []).reduce((s,c)=>s + (c.jumlah||0), 0);
   document.getElementById("totalClicks").innerText = 0;
   document.getElementById("totalSales").innerText = totalSales;
   document.getElementById("totalCommission").innerText = rupiah(totalComm);
 
-  // TABLE
+  // commission table
   const tb = document.getElementById("commissionTable");
-
-  tb.innerHTML = me.commissions.length
-    ? me.commissions.map(c=>`
+  if((me.commissions || []).length === 0){
+    tb.innerHTML = `<tr><td colspan="6" class="muted">Belum ada komisi</td></tr>`;
+  } else {
+    tb.innerHTML = (me.commissions || []).map(c => `
       <tr>
         <td>${c.time}</td>
         <td>${c.id}</td>
@@ -441,41 +478,52 @@ function render(){
         <td><span class="badge ${c.status}">${c.status}</span></td>
         <td></td>
       </tr>
-    `).join("")
-    : `<tr><td colspan="6" class="muted">Belum ada komisi</td></tr>`;
+    `).join("");
+  }
 
-  // LOGS
-  document.getElementById("logArea").innerHTML =
-    db.logs.map(l=>`<div>${l.t} — ${l.txt}</div>`).join("");
+  // logs
+  document.getElementById("logArea").innerHTML = (db.logs || []).map(l => `<div>${l.t} — ${l.txt}</div>`).join("");
 
-  // OWNER PANEL
+  // owner panel
   const ownerArea = document.getElementById("ownerArea");
-
   if(isOwner()){
-    ownerArea.style.display="block";
+    ownerArea.style.display = "block";
     const panel = document.getElementById("ownerPanel");
-
-    panel.innerHTML = db.withdraws.length
-      ? db.withdraws.map(w=>`
+    if((db.withdraws || []).length === 0){
+      panel.innerHTML = "<div class='muted'>Belum ada withdraw</div>";
+    } else {
+      panel.innerHTML = (db.withdraws || []).map(w => `
         <div style="padding:8px;border-bottom:1px solid #eee">
           <strong>${w.name}</strong><br>
           Amount: ${rupiah(w.amount)} — Final: ${rupiah(w.final)}<br>
           Metode: ${w.method} — Rek: ${w.account}<br>
           Status: ${w.status}<br>
-          ${w.status==="pending" ? `
-             <button onclick="approve('${w.id}')">Approve</button>
-             <button class="alt" onclick="cancelWD('${w.id}')">Cancel</button>
+          ${w.status === "pending" ? `
+            <button onclick="ownerApproveWithdraw('${w.id}')">Approve</button>
+            <button class="alt" onclick="ownerCancelWithdraw('${w.id}')">Cancel</button>
           ` : ""}
         </div>
-      `).join("")
-      : "<div class='muted'>Belum ada withdraw</div>";
-
+      `).join("");
+    }
   } else {
-    ownerArea.style.display="none";
+    ownerArea.style.display = "none";
   }
 }
 
+/* init */
 render();
+
+/* expose for debug */
+window.createMember = createMember;
+window.openWithdraw = openWithdraw;
+window.closeWithdraw = closeWithdraw;
+window.submitWithdraw = submitWithdraw;
+window.savePayment = savePayment;
+window.exportCSV = exportCSV;
+window.seedDemo = seedDemo;
+window.resetData = resetData;
+window.ownerApproveWithdraw = ownerApproveWithdraw;
+window.ownerCancelWithdraw = ownerCancelWithdraw;
 </script>
 
 </body>
