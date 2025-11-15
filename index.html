@@ -216,14 +216,17 @@ function isOwner(){
   return currentUser.toLowerCase() === OWNER_NAME.toLowerCase();
 }
 
-/* INITIALIZE MEMBER IF NOT EXISTS */
+/* INITIALIZE MEMBER IF NOT EXISTS
+   IMPORTANT: this function no longer calls saveDB() to avoid recursion
+*/
 function ensureMember(name){
   const key = name.trim().toLowerCase();
   const db = loadDB();
   if(!db.members[key]){
     db.members[key] = {name:name,balance:0,commissions:[]};
+    // persist directly without calling saveDB() (to avoid calling render inside)
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
   }
-  saveDB(db);
   return db.members[key];
 }
 
@@ -424,7 +427,7 @@ function render(){
         Status: ${w.status}<br>
         ${w.status==="pending"?
           `<button onclick="approve('${w.id}')">Approve</button>
-           <button class="alt" onclick="cancelWD('${w.id}')">Cancel</button>`
+           <button class="alt" onclick="cancelWD('${w.id}')">Cancel</button>` 
            :""}
       </div>`;
     }).join("") || "<div class='muted'>Belum ada withdraw</div>";
