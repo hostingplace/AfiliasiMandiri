@@ -1,445 +1,442 @@
 <!doctype html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Affiliate Dashboard — DistributorUtama</title>
-  <style>
-    :root{
-      --bg:#f3fbff;--card:#e6f7ff;--accent:#66c2ff;--accent-2:#8fd6ff;
-      --muted:#6b8596;--glass: rgba(255,255,255,0.6);--success:#23c48a;
-      --danger:#ff6b6b;font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;background:linear-gradient(180deg,var(--bg),#eef9ff);color:#083042}
-    .container{max-width:1100px;margin:28px auto;padding:20px}
-    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-    .brand{display:flex;gap:12px;align-items:center}
-    .logo{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;color:white;font-weight:700}
-    h1{margin:0;font-size:20px}
-    .sub{color:var(--muted);font-size:13px}
-    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
-    .card{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 6px 20px rgba(6,30,45,0.06)}
-    .col-4{grid-column:span 4}
-    .col-8{grid-column:span 8}
-    .col-12{grid-column:span 12}
-    .overview{display:flex;gap:12px}
-    .kpi{flex:1;padding:12px;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,0.7),transparent)}
-    .kpi h3{margin:0;font-size:14px;color:var(--muted)}
-    .kpi p{margin-top:8px;margin-bottom:0;font-weight:700;font-size:20px}
-    table{width:100%;border-collapse:collapse;font-size:14px}
-    th,td{padding:8px;text-align:left}
-    thead th{color:var(--muted);font-size:13px}
-    tbody tr{border-top:1px solid rgba(8,48,66,0.06)}
-    .badge{padding:6px 8px;border-radius:999px;font-size:12px;background:var(--glass);display:inline-block}
-    .badge.pending{background:linear-gradient(90deg,#fff3cd,#fff);color:#a37c00}
-    .badge.approved{background:linear-gradient(90deg,#e6fff3,#fff);color:var(--success)}
-    .badge.paid{background:linear-gradient(90deg,#e6f0ff,#fff);color:#1557ff}
-    .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-    input[type=text],select,input[type=number]{padding:8px;border-radius:8px;border:1px solid rgba(6,30,45,0.08);min-width:160px}
-    button{padding:8px 12px;border-radius:8px;border:0;background:var(--accent);color:white;cursor:pointer}
-    button.alt{background:transparent;color:var(--accent);border:1px solid rgba(6,30,45,0.06)}
-    .form-row{display:flex;gap:8px;align-items:center}
-    footer{margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
-    .muted{color:var(--muted)}
-    .admin-panel{background:#fff;border-radius:10px;padding:10px;margin-top:12px}
-    @media (max-width:900px){.col-4,.col-8{grid-column:span 12}.overview{flex-direction:column}}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Affiliate Dashboard — Sistem Uang Berputar</title>
+
+<style>
+  :root{
+    --bg:#f3fbff;--card:#e6f7ff;--accent:#66c2ff;--accent-2:#8fd6ff;
+    --muted:#6b8596;--glass: rgba(255,255,255,0.6);--success:#23c48a;
+    --danger:#ff6b6b;font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(180deg,var(--bg),#eef9ff);color:#083042}
+  .container{max-width:1100px;margin:28px auto;padding:20px}
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .brand{display:flex;gap:12px;align-items:center}
+  .logo{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));
+        display:flex;align-items:center;justify-content:center;color:white;font-weight:700}
+  h1{margin:0;font-size:20px}
+  .sub{color:var(--muted);font-size:13px}
+  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+  .card{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 6px 20px rgba(6,30,45,0.06)}
+  .col-4{grid-column:span 4}
+  .col-8{grid-column:span 8}
+  .col-12{grid-column:span 12}
+  .overview{display:flex;gap:12px}
+  .kpi{flex:1;padding:12px;border-radius:10px;background:rgba(255,255,255,0.5)}
+  .kpi h3{margin:0;font-size:14px;color:var(--muted)}
+  .kpi p{margin-top:8px;margin-bottom:0;font-weight:700;font-size:20px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{padding:8px;text-align:left}
+  thead th{color:var(--muted);font-size:13px}
+  tbody tr{border-top:1px solid rgba(8,48,66,0.06)}
+  .badge{padding:6px 8px;border-radius:999px;font-size:12px;background:var(--glass)}
+  .badge.pending{background:#fff3cd;color:#a37c00}
+  .badge.paid{background:#e6f0ff;color:#1557ff}
+  .badge.approved{background:#e6fff3;color:#23c48a}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  input,select{padding:8px;border-radius:8px;border:1px solid rgba(6,30,45,0.08);min-width:160px}
+  button{padding:8px 12px;border-radius:8px;border:0;background:var(--accent);color:white;cursor:pointer}
+  button.alt{background:transparent;color:var(--accent);border:1px solid rgba(6,30,45,0.06)}
+  footer{margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
+  .muted{color:var(--muted)}
+  #ownerArea{display:none}
+  .admin-panel{background:white;padding:12px;border-radius:10px;margin-top:12px}
+
+  /* Withdraw modal */
+  #withdrawModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.25);
+    align-items:center;justify-content:center;}
+  #withdrawBox{background:white;padding:18px;border-radius:12px;max-width:420px;width:90%;
+    box-shadow:0 10px 30px rgba(0,0,0,0.2)}
+</style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div class="brand">
-        <div class="logo" id="logoTxt">AF</div>
-        <div>
-          <h1 id="title">Nama Member</h1>
-          <div class="sub">Light blue theme — data disimpan di localStorage. Sistem uang berputar.</div>
-        </div>
-      </div>
-      <div style="text-align:right">
-        <div id="balanceDisplay" style="font-weight:700;font-size:16px">Saldo: Rp0</div>
-        <div class="sub">Status: <span id="withdrawStatus">Ready</span></div>
-      </div>
-    </header>
 
-    <main class="grid">
-      <!-- MAIN LEFT -->
-      <section class="card col-8">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <strong>Ringkasan</strong>
-          <div class="controls">
-            <button onclick="seedDemo()" class="alt">Isi Data Demo</button>
-            <button onclick="exportCSV()">Export CSV</button>
-            <button onclick="resetData()" class="alt">Reset</button>
-          </div>
-        </div>
+<div class="container">
 
-        <div class="overview">
-          <div class="kpi"><h3>Total Klik</h3><p id="totalClicks">0</p></div>
-          <div class="kpi"><h3>Total Penjualan</h3><p id="totalSales">0</p></div>
-          <div class="kpi"><h3>Total Komisi</h3><p id="totalCommission">Rp0</p></div>
-        </div>
-
-        <hr style="border:none;height:12px">
-
-        <div>
-          <strong>Riwayat Komisi</strong>
-          <table aria-label="komisi">
-            <thead><tr><th>Waktu</th><th>Order ID</th><th>Biaya</th><th>Jumlah</th><th>Status</th><th>Aksi</th></tr></thead>
-            <tbody id="commissionTable"></tbody>
-          </table>
-        </div>
-
-        <!-- Admin area (only visible to owner) -->
-        <div id="ownerArea" style="margin-top:18px;display:none">
-          <strong>Panel Owner — Withdraw Requests & Members</strong>
-          <div class="admin-panel" id="ownerPanel">
-            <!-- content injected via JS -->
-          </div>
-        </div>
-
-      </section>
-
-      <!-- SIDEBAR RIGHT -->
-      <aside class="card col-4">
-        <strong>Nama Member Baru Bergabung</strong>
-        <div style="margin-top:8px" class="form-row">
-          <input type="text" id="newMemberName" placeholder="Nama Member (contoh: Andi S.)" />
-          <button id="btnCreate" onclick="createMemberFromThis()">Buat</button>
-        </div>
-        <div id="linkList" style="margin-top:10px;font-size:14px"></div>
-
-        <hr style="margin:14px 0;border:none;height:10px">
-
-        <strong>Pengaturan Pembayaran</strong>
-        <div style="margin-top:8px">
-          <div style="margin-bottom:8px">Metode:</div>
-          <select id="payMethodSelect">
-            <option value="bank">Bank (Transfer)</option>
-            <option value="dana">DANA</option>
-          </select>
-          <div style="margin-top:8px">
-            <input id="payAccount" placeholder="No. Rek / E-Wallet" />
-          </div>
-          <div style="margin-top:8px" class="controls">
-            <button onclick="saveSettings()">Simpan</button>
-            <button class="alt" id="btnWithdraw" onclick="openWithdrawDialog()">Withdraw</button>
-          </div>
-        </div>
-
-        <hr style="margin:14px 0;border:none;height:10px">
-        <strong>Material Promosi</strong>
-        <div style="margin-top:8px;font-size:14px">
-          <ul id="materialsList" style="padding-left:18px;margin:0"></ul>
-        </div>
-      </aside>
-
-      <section class="card col-12">
-        <strong>Log Aktivitas</strong>
-        <div id="logArea" style="margin-top:8px;font-size:13px;color:var(--muted);max-height:160px;overflow:auto;padding:8px;background:rgba(255,255,255,0.6);border-radius:8px"></div>
-      </section>
-    </main>
-
-    <footer>Demo dashboard affiliate — data disimpan di browser. Jangan gunakan untuk data sensitif.</footer>
-  </div>
-
-  <!-- Withdraw modal (simple) -->
-  <div id="withdrawModal" style="display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(0,0,0,0.25)">
-    <div style="background:white;padding:18px;border-radius:12px;max-width:420px;width:90%;box-shadow:0 10px 30px rgba(0,0,0,0.2)">
-      <h3 style="margin-top:0">Ajukan Withdraw</h3>
-      <div style="margin-bottom:8px"><label>Jumlah (angka)</label><input id="wdAmount" type="number" style="width:100%;margin-top:6px" /></div>
-      <div style="margin-bottom:8px"><label>Metode</label>
-        <select id="wdMethod" style="width:100%;margin-top:6px"><option value="bank">Bank</option><option value="dana">DANA</option></select>
-      </div>
-      <div style="margin-bottom:12px"><label>No. Rek / DANA</label><input id="wdAccount" type="text" style="width:100%;margin-top:6px" /></div>
-      <div style="display:flex;gap:8px;justify-content:flex-end">
-        <button class="alt" onclick="closeWithdrawDialog()">Batal</button>
-        <button onclick="submitWithdraw()">Ajukan</button>
-      </div>
+<header>
+  <div class="brand">
+    <div class="logo" id="logoTxt">AF</div>
+    <div>
+      <h1 id="title">Nama Member</h1>
+      <div class="sub">Light blue theme — Sistem uang berputar (localStorage).</div>
     </div>
   </div>
 
+  <div style="text-align:right">
+    <div id="balanceDisplay" style="font-weight:700;font-size:16px">Saldo: Rp0</div>
+    <div class="sub">Status: <span id="withdrawStatus">Ready</span></div>
+  </div>
+</header>
+
+
+<main class="grid">
+  <!-- LEFT -->
+  <section class="card col-8">
+
+    <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+      <strong>Ringkasan</strong>
+      <div class="controls">
+        <button class="alt" onclick="seedDemo()">Isi Demo</button>
+        <button onclick="exportCSV()">Export CSV</button>
+        <button class="alt" onclick="resetData()">Reset</button>
+      </div>
+    </div>
+
+    <div class="overview">
+      <div class="kpi"><h3>Total Klik</h3><p id="totalClicks">0</p></div>
+      <div class="kpi"><h3>Total Penjualan</h3><p id="totalSales">0</p></div>
+      <div class="kpi"><h3>Total Komisi</h3><p id="totalCommission">Rp0</p></div>
+    </div>
+
+    <hr style="border:none;height:12px">
+
+    <strong>Riwayat Komisi</strong>
+    <table>
+      <thead><tr><th>Waktu</th><th>Order</th><th>Biaya</th><th>Jumlah</th><th>Status</th><th>Aksi</th></tr></thead>
+      <tbody id="commissionTable"></tbody>
+    </table>
+
+    <div id="ownerArea">
+      <strong>Panel Owner — Withdraw Requests</strong>
+      <div class="admin-panel" id="ownerPanel"></div>
+    </div>
+
+  </section>
+
+
+  <!-- RIGHT -->
+  <aside class="card col-4">
+    <strong>Nama Member Baru Bergabung</strong>
+    <div style="margin-top:8px; display:flex;gap:8px">
+      <input id="newMemberName" placeholder="Nama Member">
+      <button onclick="createMember()">Buat</button>
+    </div>
+
+    <div id="linkList" style="margin-top:10px;font-size:14px"></div>
+
+    <hr style="margin:14px 0">
+
+    <strong>Pengaturan Pembayaran</strong>
+    <div style="margin-top:8px">
+      <select id="payMethod">
+        <option value="bank">Bank (Transfer)</option>
+        <option value="dana">DANA</option>
+      </select>
+      <div style="margin-top:8px">
+        <input id="payAccount" placeholder="No. Rek / DANA">
+      </div>
+      <div class="controls">
+        <button onclick="savePayment()">Simpan</button>
+        <button onclick="openWithdraw()" class="alt">Withdraw</button>
+      </div>
+    </div>
+
+    <hr style="margin:14px 0">
+
+    <strong>Material Promosi</strong>
+    <ul id="materials" style="padding-left:16px"></ul>
+
+  </aside>
+
+
+  <!-- LOG -->
+  <section class="card col-12">
+    <strong>Log Aktivitas</strong>
+    <div id="logArea" style="margin-top:8px;height:160px;overflow:auto;font-size:13px;color:var(--muted);
+    background:rgba(255,255,255,0.6);padding:8px;border-radius:8px"></div>
+  </section>
+
+</main>
+
+<footer>
+  Demo affiliate — data lokal. Jangan gunakan untuk data sensitif.
+</footer>
+
+
+<!-- WITHDRAW MODAL -->
+<div id="withdrawModal">
+  <div id="withdrawBox">
+    <h3>Ajukan Withdraw</h3>
+    <label>Jumlah (angka)</label>
+    <input type="number" id="wdAmount" style="width:100%;margin-bottom:8px">
+
+    <label>Metode</label>
+    <select id="wdMethod" style="width:100%;margin-bottom:8px">
+      <option value="bank">Bank</option>
+      <option value="dana">DANA</option>
+    </select>
+
+    <label>No. Rek / DANA</label>
+    <input id="wdAccount" style="width:100%;margin-bottom:16px">
+
+    <div style="display:flex;justify-content:flex-end;gap:8px">
+      <button class="alt" onclick="closeWithdraw()">Batal</button>
+      <button onclick="submitWithdraw()">Ajukan</button>
+    </div>
+  </div>
+</div>
+
+
 <script>
 /* CONFIG */
-const STORAGE_KEY = 'affiliate_v2';
-const COMMISSION_AMOUNT = 150000;
-const TAX_AMOUNT = 5000;
-const OWNER_NAME = 'DistributorUtama'; // owner username as requested
+const STORAGE_KEY = "affiliate_v2";
+const COMMISSION = 150000;
+const TAX = 5000;
+const OWNER_NAME = "distributorutama"; // lowercase for case-insensitive matching
 
-/* HELPERS */
-function qs(name){ return new URLSearchParams(location.search).get(name); }
-function normalizeKey(name){ return (name||'').trim(); }
-function formatRupiah(n){ return 'Rp' + Number(n||0).toLocaleString('id-ID'); }
-function genId(pref='O'){ return pref + Math.random().toString(36).slice(2,9).toUpperCase(); }
+/* UTIL */
+const qs = n => new URLSearchParams(location.search).get(n);
+const rupiah = n => "Rp"+Number(n||0).toLocaleString("id-ID");
+const gen = p => p+Math.random().toString(36).substring(2,9).toUpperCase();
 
 /* DB */
-const defaultDB = { members:{}, logs:[], withdraws:[], settings:{} };
-function loadDB(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || structuredClone(defaultDB); }catch(e){ return structuredClone(defaultDB); } }
-function saveDB(db){ localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); render(); }
-
-/* LOG */
-function addLog(txt){ const db = loadDB(); db.logs.unshift({t:new Date().toLocaleString(), txt}); if(db.logs.length>500) db.logs.pop(); localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); }
+function loadDB(){
+  try{
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {members:{},logs:[],withdraws:[]};
+  }catch(e){
+    return {members:{},logs:[],withdraws:[]};
+  }
+}
+function saveDB(db){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+  render();
+}
 
 /* CURRENT USER */
-const paramUser = qs('user') || '';
-const currentKey = normalizeKey(paramUser) || 'Owner'; // if url empty, fallback 'Owner'
-/* For our design Owner is DistributorUtama — but Owner can open ?user=DistributorUtama */
-function isOwnerView(){ return currentKey === OWNER_NAME; }
+let currentUserRaw = qs("user") || "";
+let currentUser = currentUserRaw.trim().toLowerCase();
+if(!currentUser) currentUser = "anonymous";
 
-/* Ensure member exists */
-function ensureMember(key, displayName){
-  const db = loadDB();
-  const k = normalizeKey(key);
-  if(!k) return null;
-  if(!db.members[k]){ db.members[k] = { displayName: displayName || key, balance:0, commissions:[] }; addLog('Member dibuat: ' + (displayName||key)); saveDB(db); }
-  return db.members[k];
+/* OWNER CHECK (CASE INSENSITIVE) */
+function isOwner(){
+  return currentUser.toLowerCase() === OWNER_NAME.toLowerCase();
 }
 
-/* INIT */
-function init(){
+/* INITIALIZE MEMBER IF NOT EXISTS */
+function ensureMember(name){
+  const key = name.trim().toLowerCase();
   const db = loadDB();
-  // ensure owner account exists
-  if(!db.members[OWNER_NAME]) db.members[OWNER_NAME] = { displayName: OWNER_NAME, balance:0, commissions:[] };
-  // ensure viewing member exists
-  ensureMember(currentKey, currentKey);
-  render();
-}
-
-/* Create member (invited by current user) */
-function createMemberFromThis(){
-  const name = document.getElementById('newMemberName').value.trim();
-  if(!name) return alert('Isi nama member baru');
-  const db = loadDB();
-  const newKey = normalizeKey(name);
-  if(!newKey) return alert('Nama tidak valid');
-  // create member if not exists
-  if(!db.members[newKey]) db.members[newKey] = { displayName: name, balance:0, commissions:[] };
-  // generate link
-  const url = location.origin + location.pathname + '?user=' + encodeURIComponent(name);
-  // give commission to inviter (currentKey)
-  const inviter = db.members[currentKey] || ensureMember(currentKey, currentKey);
-  const commission = { id: genId('C'), time: new Date().toLocaleString(), biaya: 'Pajak Member', jumlah: COMMISSION_AMOUNT, status:'paid', from: name };
-  inviter.commissions.unshift(commission);
-  inviter.balance = (inviter.balance||0) + COMMISSION_AMOUNT;
-  addLog(`${inviter.displayName} mendapat komisi ${formatRupiah(COMMISSION_AMOUNT)} dari invite ${name}`);
+  if(!db.members[key]){
+    db.members[key] = {name:name,balance:0,commissions:[]};
+  }
   saveDB(db);
-  // show link
-  document.getElementById('linkList').innerHTML = `<div style="margin-bottom:8px;padding:8px;background:white;border-radius:8px;"><div style="font-size:13px"><strong>${name}</strong><div class="muted">Link untuk member baru</div></div><div style="margin-top:6px"><input readonly style="border:0;background:transparent;font-size:13px;width:100%" value="${url}" /></div></div>`;
-  document.getElementById('newMemberName').value = '';
-  render();
+  return db.members[key];
 }
 
-/* Render UI */
-function render(){
+/* CREATE MEMBER (DOWNLINE) */
+function createMember(){
+  const name = document.getElementById("newMemberName").value.trim();
+  if(!name) return alert("Isi nama member baru.");
+
+  const key = name.toLowerCase();
   const db = loadDB();
-  const me = db.members[currentKey] || { displayName: currentKey, balance:0, commissions:[] };
-  // header
-  document.getElementById('title').innerText = me.displayName || 'Nama Member';
-  document.getElementById('logoTxt').innerText = (me.displayName||'AF').slice(0,2).toUpperCase();
-  document.getElementById('balanceDisplay').innerText = 'Saldo: ' + formatRupiah(me.balance || 0);
-  document.getElementById('materialsList').innerHTML = (db.materials||[]).map(m=>`<li>${m.title}</li>`).join('') || '<li>Tidak ada</li>';
 
-  // KPIs
-  const totalClicks = Object.values(db.members).reduce((s,m)=>s + (m.clicks||0),0);
-  const totalSales = me.commissions.filter(c=>c.status!=='pending').length;
-  const totalComm = me.commissions.reduce((s,c)=>s + (c.jumlah||0),0);
-  document.getElementById('totalClicks').innerText = totalClicks;
-  document.getElementById('totalSales').innerText = totalSales;
-  document.getElementById('totalCommission').innerText = formatRupiah(totalComm);
-
-  // commissions table (show only me)
-  const tbody = (me.commissions||[]).map(c=>{
-    const badge = `<span class="badge ${c.status}">${c.status}</span>`;
-    let actionHtml = '';
-    if(c.status === 'pending') actionHtml = `<button onclick="approveLocalCommission('${c.id}')">Approve</button>`;
-    else actionHtml = '';
-    return `<tr><td>${c.time}</td><td>${c.id}</td><td>${c.biaya}</td><td>${formatRupiah(c.jumlah)}</td><td>${badge}</td><td>${actionHtml}</td></tr>`;
-  }).join('');
-  document.getElementById('commissionTable').innerHTML = tbody || '<tr><td colspan="6" class="muted">Belum ada komisi</td></tr>';
-
-  // logs
-  document.getElementById('logArea').innerHTML = (db.logs||[]).map(l=>`<div><strong>${l.t}</strong> — ${l.txt}</div>`).join('');
-
-  // withdraw status text
-  document.getElementById('withdrawStatus').innerText = (me.balance>0? 'Ready':'No Balance');
-
-  // owner area visible only for OWNER_NAME
-  const ownerArea = document.getElementById('ownerArea');
-  ownerArea.style.display = isOwnerView() ? 'block' : 'none';
-  if(isOwnerView()){
-    renderOwnerPanel();
+  if(!db.members[key]){
+    db.members[key] = {name:name,balance:0,commissions:[]};
   }
+
+  const me = ensureMember(currentUser);
+
+  me.commissions.unshift({
+    id:gen("C"),time:new Date().toLocaleString(),biaya:"Pajak Member",
+    jumlah:COMMISSION,status:"paid",from:name
+  });
+
+  me.balance += COMMISSION;
+  db.logs.unshift({t:new Date().toLocaleString(),txt:`${me.name} dapat komisi dari ${name}`});
+
+  const url = location.origin+location.pathname+"?user="+encodeURIComponent(name);
+
+  document.getElementById("linkList").innerHTML =
+  `<div style="background:white;padding:10px;border-radius:8px;margin-top:8px">
+    <strong>${name}</strong><br>
+    <small>Link member baru:</small>
+    <input style="width:100%;border:0;background:transparent" value="${url}" readonly>
+  </div>`;
+
+  saveDB(db);
+  document.getElementById("newMemberName").value="";
 }
 
-/* Owner panel rendering: withdraw requests + members */
-function renderOwnerPanel(){
-  const db = loadDB();
-  const panel = document.getElementById('ownerPanel');
-  panel.innerHTML = '';
-  // withdraws list
-  const wList = (db.withdraws||[]).slice().reverse();
-  const wHtml = [];
-  if(wList.length===0) wHtml.push('<div class="muted">Belum ada request withdraw</div>');
-  else {
-    wHtml.push('<table style="width:100%;border-collapse:collapse;margin-bottom:8px"><thead><tr><th>ID</th><th>User</th><th>Amount</th><th>Fee</th><th>Final</th><th>Method</th><th>Account</th><th>Time</th><th>Status</th><th>Action</th></tr></thead><tbody>');
-    wList.forEach(w=>{
-      wHtml.push(`<tr>
-        <td style="padding:6px">${w.id}</td>
-        <td style="padding:6px">${w.user}</td>
-        <td style="padding:6px">${formatRupiah(w.amount)}</td>
-        <td style="padding:6px">${formatRupiah(w.fee)}</td>
-        <td style="padding:6px">${formatRupiah(w.final)}</td>
-        <td style="padding:6px">${w.method}</td>
-        <td style="padding:6px">${w.account}</td>
-        <td style="padding:6px">${w.time}</td>
-        <td style="padding:6px">${w.status}</td>
-        <td style="padding:6px">${w.status==='pending'?`<button onclick="ownerApproveWithdraw('${w.id}')">Approve</button> <button class='alt' onclick="ownerCancelWithdraw('${w.id}')">Cancel</button>`:'—'}</td>
-      </tr>`);
-    });
-    wHtml.push('</tbody></table>');
-  }
-  panel.innerHTML += '<h4 style="margin:6px 0">Withdraw Requests</h4>' + wHtml.join('');
-
-  // members snapshot
-  const members = Object.keys(db.members||{}).map(k=>{
-    const m = db.members[k];
-    return `<div style="padding:6px;border-bottom:1px solid rgba(6,30,45,0.04)"><strong>${m.displayName}</strong> — Saldo: ${formatRupiah(m.balance||0)} — Komisi: ${(m.commissions||[]).length}</div>`;
-  }).join('');
-  panel.innerHTML += '<h4 style="margin:12px 0 6px 0">Members Snapshot</h4>' + (members || '<div class="muted">No members</div>');
+/* WITHDRAW */
+function openWithdraw(){
+  document.getElementById("withdrawModal").style.display="flex";
+  document.getElementById("wdAccount").value =
+    document.getElementById("payAccount").value || "";
 }
+function closeWithdraw(){ document.getElementById("withdrawModal").style.display="none"; }
 
-/* Withdraw dialog controls */
-function openWithdrawDialog(){ 
-  document.getElementById('wdAmount').value='';
-  document.getElementById('wdAccount').value = document.getElementById('payAccount').value || '';
-  document.getElementById('withdrawModal').style.display='flex';
-}
-function closeWithdrawDialog(){ document.getElementById('withdrawModal').style.display='none'; }
-
-/* Submit withdraw (member action => create request for owner) */
 function submitWithdraw(){
-  const amt = Number(document.getElementById('wdAmount').value || 0);
-  const method = document.getElementById('wdMethod').value;
-  const account = document.getElementById('wdAccount').value.trim();
-  if(!amt || amt<=0) return alert('Masukkan nominal withdraw yang valid');
-  if(!account) return alert('Masukkan nomor rekening / akun DANA');
+  const amt = Number(document.getElementById("wdAmount").value);
+  const method = document.getElementById("wdMethod").value;
+  const acc = document.getElementById("wdAccount").value.trim();
+
+  if(amt<=0) return alert("Nominal salah");
+  if(!acc) return alert("Isi nomor rekening");
+
   const db = loadDB();
-  const me = db.members[currentKey];
-  if(!me) return alert('Member tidak ditemukan');
-  if(me.balance < amt) return alert('Saldo tidak cukup untuk jumlah ini');
-  // create withdraw request (status pending)
-  const wd = { id: genId('WD'), user: currentKey, amount: amt, fee: TAX_AMOUNT, final: Math.max(0, amt - TAX_AMOUNT), method, account, status:'pending', time: new Date().toLocaleString() };
-  db.withdraws = db.withdraws || [];
-  db.withdraws.push(wd);
-  addLog(`Withdraw diajukan oleh ${currentKey}: ${formatRupiah(amt)} (fee ${formatRupiah(TAX_AMOUNT)})`);
+  const me = ensureMember(currentUser);
+
+  if(me.balance < amt) return alert("Saldo kurang");
+
+  db.withdraws.unshift({
+    id:gen("WD"),user:currentUser,name:me.name,
+    amount:amt,fee:TAX,final:amt-TAX,
+    method,account:acc,status:"pending",
+    time:new Date().toLocaleString()
+  });
+
+  db.logs.unshift({t:new Date().toLocaleString(),txt:`${me.name} ajukan withdraw`});
   saveDB(db);
-  closeWithdrawDialog();
-  alert('Withdraw diajukan. Owner akan melihat dan memproses secara manual.');
+
+  closeWithdraw();
+  alert("Withdraw diajukan. Owner akan memproses manual.");
 }
 
-/* Owner approves withdraw (owner action) */
-function ownerApproveWithdraw(id){
+/* OWNER APPROVE */
+function approve(id){
   const db = loadDB();
-  const idx = (db.withdraws||[]).findIndex(x=>x.id===id);
-  if(idx===-1) return alert('Request tidak ditemukan');
-  const w = db.withdraws[idx];
-  if(w.status !== 'pending') return alert('Request bukan pending');
-  // ensure member exists
-  if(!db.members[w.user]) return alert('Member data tidak ditemukan');
-  const m = db.members[w.user];
-  // deduct amount from member balance
-  m.balance = Math.max(0, (m.balance||0) - w.amount);
-  w.status = 'approved';
-  w.approvedAt = new Date().toLocaleString();
-  db.logs = db.logs || [];
-  db.logs.unshift({ t:new Date().toLocaleString(), txt:`Withdraw ${w.id} approved by owner` });
+  const wd = db.withdraws.find(x=>x.id===id);
+  if(!wd) return;
+
+  const m = ensureMember(wd.user);
+
+  m.balance -= wd.amount;
+  wd.status = "approved";
+  wd.done = new Date().toLocaleString();
+
+  db.logs.unshift({t:new Date().toLocaleString(),txt:`Owner approve withdraw ${wd.name}`});
   saveDB(db);
-  alert('Withdraw approved. Ingat untuk transfer manual ke nomor tujuan yang tercantum.');
+
+  alert("Withdraw approved. Transfer manual ke member.");
 }
 
-/* Owner cancel withdraw */
-function ownerCancelWithdraw(id){
-  if(!confirm('Batalkan request ini?')) return;
+/* OWNER CANCEL */
+function cancelWD(id){
   const db = loadDB();
-  const idx = (db.withdraws||[]).findIndex(x=>x.id===id);
-  if(idx===-1) return alert('Request tidak ditemukan');
-  db.withdraws[idx].status = 'cancelled';
-  db.logs = db.logs || [];
-  db.logs.unshift({ t:new Date().toLocaleString(), txt:`Withdraw ${id} cancelled by owner` });
-  saveDB(db);
-}
+  const wd = db.withdraws.find(x=>x.id===id);
+  if(!wd) return;
 
-/* Approve local commission (keperluan backward compatibility) */
-function approveLocalCommission(id){
-  const db = loadDB();
-  const me = db.members[currentKey];
-  const c = (me.commissions||[]).find(x=>x.id===id);
-  if(!c) return;
-  c.status = 'approved';
+  wd.status="cancelled";
+  db.logs.unshift({t:new Date().toLocaleString(),txt:`Owner cancel withdraw ${wd.name}`});
   saveDB(db);
 }
 
-/* Save payment settings (member saves their preferred target account) */
-function saveSettings(){
+/* PP SETTINGS */
+function savePayment(){
   const db = loadDB();
-  db.settings = db.settings || {};
-  db.settings[currentKey] = db.settings[currentKey] || {};
-  db.settings[currentKey].method = document.getElementById('payMethodSelect').value;
-  db.settings[currentKey].account = document.getElementById('payAccount').value.trim();
-  addLog(`Pengaturan pembayaran disimpan oleh ${currentKey}`);
+  const me = ensureMember(currentUser);
+
+  me.method = document.getElementById("payMethod").value;
+  me.account = document.getElementById("payAccount").value.trim();
+
+  db.logs.unshift({t:new Date().toLocaleString(),txt:`${me.name} simpan pengaturan pembayaran`});
   saveDB(db);
-  alert('Pengaturan disimpan.');
+
+  alert("Disimpan.");
 }
 
-/* Utility: export CSV for current user commissions */
+/* EXPORT */
 function exportCSV(){
   const db = loadDB();
-  const me = db.members[currentKey];
-  const rows = [['time','id','biaya','jumlah','status']].concat((me.commissions||[]).map(c=>[c.time,c.id,c.biaya,c.jumlah,c.status]));
-  const csv = rows.map(r=>r.map(x=>`"${String(x||'').replace(/"/g,'""')}"`).join(',')).join('\n');
-  const blob = new Blob([csv],{type:'text/csv'}); const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = 'commissions_'+encodeURIComponent(currentKey)+'.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  const me = ensureMember(currentUser);
+
+  const rows = [
+    ["time","order","biaya","jumlah","status"],
+    ...me.commissions.map(c=>[c.time,c.id,c.biaya,c.jumlah,c.status])
+  ];
+
+  const csv = rows.map(r=>r.join(",")).join("\n");
+  const blob = new Blob([csv],{type:"text/csv"});
+  const url = URL.createObjectURL(blob);
+
+  const a=document.createElement("a");
+  a.href=url;a.download="commissions.csv";a.click();
+  URL.revokeObjectURL(url);
 }
 
-/* Demo data seeder */
+/* DEMO */
 function seedDemo(){
   const db = loadDB();
-  db.members = db.members || {};
-  db.members[OWNER_NAME] = db.members[OWNER_NAME] || { displayName: OWNER_NAME, balance:450000, commissions:[] };
-  db.members['Amirah'] = { displayName:'Amirah', balance:0, commissions:[] };
-  db.members['Farel'] = { displayName:'Farel', balance:0, commissions:[] };
-  // give owner some sample commissions
-  db.members[OWNER_NAME].commissions = db.members[OWNER_NAME].commissions || [];
-  db.members[OWNER_NAME].commissions.unshift({ id: genId('C'), time:new Date().toLocaleString(), biaya:'Pajak Member', jumlah:150000, status:'paid' });
-  db.materials = [{title:'Banner 1'},{title:'Kode Diskon 10%'}];
-  db.logs = db.logs || []; db.logs.unshift({t:new Date().toLocaleString(), txt:'Demo data dimuat'});
+  db.members["distributorutama"]={name:"DistributorUtama",balance:450000,commissions:[]};
+  db.logs.unshift({t:new Date().toLocaleString(),txt:"Demo data ditambahkan"});
   saveDB(db);
 }
 
-/* Reset data */
+/* RESET */
 function resetData(){
-  if(!confirm('Reset semua data di localStorage?')) return;
-  localStorage.removeItem(STORAGE_KEY);
-  saveDB(structuredClone(defaultDB));
-  alert('Data direset');
+  if(confirm("Reset data?")){
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  }
 }
 
-/* Init run */
-init();
+/* RENDER */
+function render(){
+  const db = loadDB();
+  const me = ensureMember(currentUser);
 
-/* Expose for debug if needed */
-window.createMemberFromThis = createMemberFromThis;
-window.ownerApproveWithdraw = ownerApproveWithdraw;
-window.ownerCancelWithdraw = ownerCancelWithdraw;
-window.seedDemo = seedDemo;
-window.saveSettings = saveSettings;
-window.exportCSV = exportCSV;
-window.resetData = resetData;
+  document.getElementById("title").innerText = me.name;
+  document.getElementById("logoTxt").innerText = me.name.substring(0,2).toUpperCase();
+  document.getElementById("balanceDisplay").innerText = "Saldo: "+rupiah(me.balance);
+  document.getElementById("withdrawStatus").innerText = me.balance>0 ? "Ready" : "No Balance";
 
-/* close modal on outside click */
-document.getElementById('withdrawModal').addEventListener('click', function(e){
-  if(e.target === this) closeWithdrawDialog();
-});
+  /* KPI */
+  const totalSales = me.commissions.length;
+  const totalComm = me.commissions.reduce((s,c)=>s+c.jumlah,0);
+
+  document.getElementById("totalClicks").innerText = 0;
+  document.getElementById("totalSales").innerText = totalSales;
+  document.getElementById("totalCommission").innerText = rupiah(totalComm);
+
+  /* TABLE COMMISSIONS */
+  const tb = document.getElementById("commissionTable");
+  tb.innerHTML = me.commissions.map(c=>{
+    return `<tr>
+      <td>${c.time}</td>
+      <td>${c.id}</td>
+      <td>${c.biaya}</td>
+      <td>${rupiah(c.jumlah)}</td>
+      <td><span class="badge ${c.status}">${c.status}</span></td>
+      <td></td>
+    </tr>`;
+  }).join("") || `<tr><td colspan="6" class="muted">Belum ada komisi</td></tr>`;
+
+  /* LOGS */
+  document.getElementById("logArea").innerHTML =
+    db.logs.map(l=>`<div>${l.t} — ${l.txt}</div>`).join("");
+
+  /* OWNER PANEL */
+  const ownerArea = document.getElementById("ownerArea");
+  if(isOwner()){
+    ownerArea.style.display="block";
+
+    const panel = document.getElementById("ownerPanel");
+    panel.innerHTML = db.withdraws.map(w=>{
+      return `<div style="padding:8px;border-bottom:1px solid #eee">
+        <strong>${w.name}</strong><br>
+        Amount: ${rupiah(w.amount)} — Final: ${rupiah(w.final)} <br>
+        Metode: ${w.method} — Rek: ${w.account} <br>
+        Status: ${w.status}<br>
+        ${w.status==="pending"?
+          `<button onclick="approve('${w.id}')">Approve</button>
+           <button class="alt" onclick="cancelWD('${w.id}')">Cancel</button>`
+           :""}
+      </div>`;
+    }).join("") || "<div class='muted'>Belum ada withdraw</div>";
+
+  } else {
+    ownerArea.style.display="none";
+  }
+
+}
+
+render();
 </script>
+
 </body>
 </html>
