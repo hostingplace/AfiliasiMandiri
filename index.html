@@ -153,9 +153,15 @@
     </table>
 
     <div id="ownerArea">
-      <strong>Panel Owner — Withdraw Requests</strong>
-      <div class="admin-panel" id="ownerPanel"></div>
-    </div>
+  <strong>Panel Owner — Withdraw Requests</strong>
+  <div class="admin-panel" id="ownerPanel"></div>
+
+  <hr style="margin:14px 0">
+
+  <strong>Daftar Saldo Semua Member</strong>
+  <div class="admin-panel" id="ownerBalanceList"></div>
+</div>
+
 
   </section>
 
@@ -542,6 +548,7 @@ function render(){
       panel.innerHTML = "<div class='muted'>Belum ada withdraw</div>";
     } else {
       panel.innerHTML = (db.withdraws || []).map(w => `
+      
         <div style="padding:8px;border-bottom:1px solid #eee">
           <strong>${w.name}</strong><br>
           Amount: ${rupiah(w.amount)} — Final: ${rupiah(w.final)}<br>
@@ -554,10 +561,30 @@ function render(){
         </div>
       `).join("");
     }
+    // ======== LIST SALDO MEMBER ==========
+const balPanel = document.getElementById("ownerBalanceList");
+
+const memberKeys = Object.keys(db.members || {});
+if(memberKeys.length === 0){
+    balPanel.innerHTML = "<div class='muted'>Belum ada member.</div>";
+} else {
+    balPanel.innerHTML = memberKeys.map(k => {
+        const m = db.members[k];
+        return `
+            <div style="padding:8px;border-bottom:1px solid #eee">
+                <strong>${m.name}</strong><br>
+                Saldo: ${rupiah(m.balance || 0)}<br>
+                Payment: ${m.method || '-'} — ${m.account || '-'}
+            </div>
+        `;
+    }).join("");
+}
+
   } else {
     ownerArea.style.display = "none";
   }
 }
+
 
 /* init */
 render();
@@ -577,4 +604,3 @@ window.ownerCancelWithdraw = ownerCancelWithdraw;
 
 </body>
 </html>
-
